@@ -27,8 +27,8 @@ if [ -z "${BASH_VERSION:-}" ]; then
   exit 1
 fi
 
-# GitHub repo used for release downloads
-REPO="kure29/flyx"
+# GitHub repo used for release downloads（可用 REPO=owner/repo 覆盖）
+REPO="${REPO:-kunkundun/flyx-native}"
 
 # 固定版本号（Release 构建时自动填充，留空则获取最新版）
 PINNED_VERSION=""

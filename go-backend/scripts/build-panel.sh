@@ -28,7 +28,9 @@ touch "$ROOT/internal/webserver/dist/.gitkeep"
 
 echo "▶ 编译 paneld"
 mkdir -p "$(dirname "$OUT")"
-CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$OUT" ./cmd/paneld
+CGO_ENABLED=0 go build -trimpath \
+	-ldflags="-s -w -X go-backend/internal/http/handler.githubRepo=${GITHUB_REPO:-kunkundun/flyx-native}" \
+	-o "$OUT" ./cmd/paneld
 
 echo "✅ 完成：$OUT"
 ls -lh "$OUT"

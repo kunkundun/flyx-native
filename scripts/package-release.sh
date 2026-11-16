@@ -31,16 +31,30 @@ touch "$ROOT/go-backend/internal/webserver/dist/.gitkeep"
 
 mkdir -p "$OUT"
 
+# 节点 agent 的下载来源（面板生成的安装命令会用这个仓库）
+GITHUB_REPO="${GITHUB_REPO:-kunkundun/flyx-native}"
+
 for arch in amd64 arm64; do
-	echo "▶ 编译 linux/$arch"
+	echo "▶ 编译 linux/$arch 面板"
 	(
 		cd "$ROOT/go-backend"
 		CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
 			go build -trimpath \
-			-ldflags="-s -w -X main.version=$VERSION" \
+			-ldflags="-s -w -X main.version=$VERSION -X go-backend/internal/http/handler.githubRepo=$GITHUB_REPO" \
 			-o "$OUT/flyx-paneld-linux-$arch" ./cmd/paneld
 	)
+
+	echo "▶ 编译 linux/$arch 节点 agent"
+	(
+		cd "$ROOT/go-gost"
+		CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
+			go build -trimpath -ldflags="-s -w" \
+			-o "$OUT/gost-$arch" .
+	)
 done
+
+echo "▶ 附带 install.sh（节点安装命令会从这里下载）"
+cp -f "$ROOT/install.sh" "$OUT/install.sh"
 
 echo "▶ 打包整套"
 tar czf "$OUT/flyx-native-$VERSION.tar.gz" \
