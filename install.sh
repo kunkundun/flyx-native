@@ -165,6 +165,31 @@ probe_speed() {
   esac
 }
 
+# 把探测结果写入安装目录与 systemd journal（装完后仍可追溯）
+record_route() {
+  local chosen="$1" speed="$2" table="$3"
+  local line route_file
+  route_file="${INSTALL_DIR:-/tmp}/install-route.txt"
+  line="route: chosen=${chosen:-direct} speed=${speed}KB/s"
+  mkdir -p "$(dirname "$route_file")" 2>/dev/null || true
+  {
+    echo "# FLYX agent 安装时的下载线路探测结果"
+    echo "time=$(date -Is 2>/dev/null || date)"
+    echo "repo=${REPO}"
+    echo "version=${RESOLVED_VERSION:-${VERSION:-latest}}"
+    echo "chosen=${chosen:-direct}"
+    echo "speed_kbps=${speed}"
+    echo "candidates:"
+    printf '%s\n' "$table"
+  } >"$route_file" 2>/dev/null || true
+  if command -v systemd-cat >/dev/null 2>&1; then
+    printf '%s\n%s\n' "$line" "$table" | systemd-cat -t flyx-install -p info 2>/dev/null || true
+  elif command -v logger >/dev/null 2>&1; then
+    logger -t flyx-install "$line" 2>/dev/null || true
+  fi
+  echo "📝 线路选择已记录：${route_file}（journalctl -t flyx-install 也可查）" >&2
+}
+
 # 选出最快的下载前缀："" 表示直连，其它为 "https://mirror"
 # 首次调用时并行探测一次，结果缓存到 RESOLVED_URL_PREFIX
 RESOLVED_URL_PREFIX=""
@@ -184,6 +209,7 @@ resolve_url_prefix() {
   if [[ "$mode" == "false" || "$mode" == "direct" ]]; then
     RESOLVED_URL_PREFIX=""
     RESOLVED_URL_PREFIX_DONE="1"
+    record_route "direct" "skipped" "  （未探测：PROXY_ENABLED=${mode}）"
     echo ""
     return
   fi
@@ -222,31 +248,6 @@ resolve_url_prefix() {
     return
   fi
 
-  local route_file="${INSTALL_DIR:-/tmp}/install-route.txt"
-
-  # 把探测结果同时写入安装目录与 systemd journal，装完后仍可追溯
-  record_route() {
-    local chosen="$1" speed="$2" table="$3"
-    local line
-    line="route: chosen=${chosen:-direct} speed=${speed}KB/s"
-    mkdir -p "$(dirname "$route_file")" 2>/dev/null || true
-    {
-      echo "# FLYX agent 安装时的下载线路探测结果"
-      echo "time=$(date -Is 2>/dev/null || date)"
-      echo "repo=${REPO}"
-      echo "version=${RESOLVED_VERSION:-${VERSION:-latest}}"
-      echo "chosen=${chosen:-direct}"
-      echo "speed_kbps=${speed}"
-      echo "candidates:"
-      printf '%s\n' "$table"
-    } >"$route_file" 2>/dev/null || true
-    if command -v systemd-cat >/dev/null 2>&1; then
-      printf '%s\n%s\n' "$line" "$table" | systemd-cat -t flyx-install -p info 2>/dev/null || true
-    elif command -v logger >/dev/null 2>&1; then
-      logger -t flyx-install "$line" 2>/dev/null || true
-    fi
-    echo "📝 线路选择已记录：${route_file}（journalctl -t flyx-install 也可查）" >&2
-  }
 
   echo "🔍 正在探测最快的下载线路（直连 + ${#prefixes[@]} 个候选，最多 ${PROBE_TIMEOUT}s）..." >&2
   local tmpdir
