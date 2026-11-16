@@ -71,6 +71,19 @@ PANEL_PATH=/
 PANEL_HIDE_ROOT=1
 ```
 
+## 下载线路自动探测
+
+`install.sh` / `install-panel.sh` 默认 `PROXY_ENABLED=auto`：并行探测「直连 + 面板配置的代理 +
+内置候选（gh-proxy.com / ghfast.top / githubproxy.cc）」，按 256KB 分片测速选最快的一条；
+全部失败时回退到配置的代理。国内机房直连通常只有 40KB/s，而外网机器直连可能比镜像更快，
+所以不再固定走代理。
+
+```bash
+PROXY_ENABLED=false bash install.sh -a <面板IP>:6365 -s <secret>     # 强制直连
+PROXY_CANDIDATES="https://gh-proxy.com" bash install.sh ...          # 只用一个候选
+PROXY_MODE=direct bash install-panel.sh ./flyx-paneld                # 关掉探测
+```
+
 ## 常用运维
 
 ```bash

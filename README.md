@@ -68,6 +68,33 @@ sudo FLVX_BINARY_URL=https://github.com/kunkundun/flyx-native/releases/download/
   bash install-panel.sh
 ```
 
+## 下载线路（自动探测）
+
+安装脚本默认 `PROXY_ENABLED=auto`：**并行探测「直连 + 各加速镜像」，选最快的那条**下载。
+因为线路快慢与所在网络强相关（实测同一时刻：国内机房走镜像 300KB/s、直连 40KB/s；
+而另一台机器直连 100KB/s、镜像只有 44KB/s），固定用代理反而可能更慢。
+
+```
+🔍 正在探测最快的下载线路（直连 + 4 个候选，最多 6s）...
+   直连: 100 KB/s
+   https://gh-proxy.com: 44 KB/s
+   https://ghfast.top: 0 KB/s
+   https://githubproxy.cc: 53 KB/s
+✅ 选用：直连（100 KB/s）
+```
+
+可用环境变量调整：
+
+| 变量 | 说明 |
+|---|---|
+| `PROXY_ENABLED` | `auto`（默认）/ `false` 只直连 / `true` 等同 auto |
+| `PROXY_URL` | 额外候选镜像（面板「GitHub 加速」里的地址） |
+| `PROXY_CANDIDATES` | 覆盖内置候选，空格分隔 |
+| `PROBE_BYTES` / `PROBE_TIMEOUT` | 测速分片大小、单次超时（默认 256KB / 6s） |
+| `PROXY_MODE=direct` | `install-panel.sh` 里关闭探测 |
+
+面板「网站配置 → GitHub 加速」里的地址会作为候选之一一起参与测速，不再强制使用。
+
 ## 安装后三步
 
 1. 浏览器打开面板，**改掉初始密码**（`admin_user` / `admin_user`，首次登录强制改）
