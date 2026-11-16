@@ -1,0 +1,633 @@
+@import "tailwindcss";
+@import "./tailwind-theme.pcss";
+@plugin "tailwindcss-animate";
+
+/* GPU acceleration helper - prevents font blurriness during transforms */
+.gpu-accelerated {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #a3a3a3;
+
+  --content1: #ffffff;
+  --divider: #ededed;
+
+  --default-50: #fafafa;
+  --default-100: #f5f5f5;
+  --default-200: #e5e5e5;
+  --default-300: #d4d4d4;
+  --default-400: #a3a3a3;
+  --default-500: #737373;
+  --default-600: #525252;
+  --default-700: #404040;
+  --default-800: #262626;
+  --default-900: #171717;
+
+  --primary-50: #fafafa;
+  --primary-100: #f5f5f5;
+  --primary-200: #e5e5e5;
+  --primary-300: #d4d4d4;
+  --primary-400: #737373;
+  --primary-500: #262626;
+  --primary-600: #0a0a0a;
+  --primary-700: #0a0a0a;
+  --primary-800: #0a0a0a;
+  --primary-900: #0a0a0a;
+
+  --secondary-50: #fafafa;
+  --secondary-100: #f5f5f5;
+  --secondary-200: #e5e5e5;
+  --secondary-300: #d4d4d4;
+  --secondary-400: #737373;
+  --secondary-500: #262626;
+  --secondary-600: #0a0a0a;
+  --secondary-700: #0a0a0a;
+  --secondary-800: #0a0a0a;
+  --secondary-900: #0a0a0a;
+
+  --danger-50: #fef2f2;
+  --danger-100: #fee2e2;
+  --danger-200: #fecaca;
+  --danger-300: #fca5a5;
+  --danger-400: #f87171;
+  --danger-500: #ef4444;
+  --danger-600: #dc2626;
+  --danger-700: #b91c1c;
+  --danger-800: #991b1b;
+  --danger-900: #7f1d1d;
+
+  --success-50: #f0fdf4;
+  --success-100: #dcfce7;
+  --success-200: #bbf7d0;
+  --success-300: #86efac;
+  --success-400: #4ade80;
+  --success-500: #22c55e;
+  --success-600: #16a34a;
+  --success-700: #15803d;
+  --success-800: #166534;
+  --success-900: #14532d;
+
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-200: #fde68a;
+  --warning-300: #fcd34d;
+  --warning-400: #fbbf24;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  --warning-700: #b45309;
+  --warning-800: #92400e;
+  --warning-900: #78350f;
+
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+  --secondary: #404040;
+  --secondary-foreground: #ffffff;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --warning: #d97706;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --border: #262626;
+  --input: #333333;
+  --ring: #525252;
+
+  --content1: #111111;
+  --divider: #1f1f1f;
+
+  --default-50: #171717;
+  --default-100: #1f1f1f;
+  --default-200: #262626;
+  --default-300: #404040;
+  --default-400: #525252;
+  --default-500: #737373;
+  --default-600: #a3a3a3;
+  --default-700: #d4d4d4;
+  --default-800: #e5e5e5;
+  --default-900: #f5f5f5;
+
+  --primary: #fafafa;
+  --secondary: #d4d4d4;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --primary-foreground: #0a0a0a;
+  --secondary-foreground: #0a0a0a;
+  --primary-50: #fafafa;
+  --primary-100: #f5f5f5;
+  --primary-200: #e5e5e5;
+  --primary-300: #f5f5f5;
+  --primary-400: #fafafa;
+  --primary-500: #fafafa;
+  --primary-600: #e5e5e5;
+  --primary-700: #d4d4d4;
+  --primary-800: #404040;
+  --primary-900: #262626;
+  --secondary-50: #fafafa;
+  --secondary-100: #f5f5f5;
+  --secondary-200: #e5e5e5;
+  --secondary-300: #f5f5f5;
+  --secondary-400: #fafafa;
+  --secondary-500: #fafafa;
+  --secondary-600: #e5e5e5;
+  --secondary-700: #d4d4d4;
+  --secondary-800: #404040;
+  --secondary-900: #262626;
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* A plain <select> with the same chevron as the panel's own selects. */
+.select-chevron {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  padding-right: 2.25rem;
+}
+
+/* Large screens (2K and up at 100% scaling): sizes are in rem, so a larger
+   root font scales text, spacing, the sidebar and the content width
+   together instead of leaving a small page in a wide window. */
+@media (min-width: 1920px) {
+  html {
+    font-size: 112.5%;
+  }
+}
+
+@media (min-width: 2400px) {
+  html {
+    font-size: 125%;
+  }
+}
+
+.safe-top {
+  padding-top: var(--safe-area-top);
+}
+
+.safe-bottom {
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.text-small {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-tiny {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+@supports (height: 100dvh) {
+  .h-screen {
+    height: 100dvh;
+  }
+
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .h-screen {
+    height: -webkit-fill-available;
+  }
+
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* The settings page on a phone: a group slides in from the right when it
+   opens, the list slides back from the left. Transform and opacity only, so
+   the slide stays on the compositor. */
+.config-pane-push {
+  animation: configPanePush 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.config-pane-pop {
+  animation: configPanePop 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes configPanePush {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes configPanePop {
+  from {
+    opacity: 0;
+    transform: translateX(-25%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* The phone's page transitions (hooks/useRouteTransition.ts): a page one
+   level down slides in like a settings group, back slides the other way,
+   and switching tab-bar pages fades. */
+.h5-shell .route-push {
+  animation: configPanePush 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.h5-shell .route-pop {
+  animation: configPanePop 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.h5-shell .route-fade {
+  animation: routeFade 0.22s ease-out;
+}
+
+@keyframes routeFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Content under a segmented tab, after the tab changes (PageTabs marks the
+   parent for a moment). */
+.h5-shell .tabs-switched > .page-tabs ~ * {
+  animation: tabContentIn 0.2s ease-out;
+}
+
+@keyframes tabContentIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .config-pane-push,
+  .config-pane-pop,
+  .h5-shell .route-push,
+  .h5-shell .route-pop,
+  .h5-shell .route-fade,
+  .h5-shell .tabs-switched > .page-tabs ~ * {
+    animation-duration: 0.01ms;
+  }
+}
+
+/* Where a search result lands: a short flash around the setting. */
+.config-field-flash {
+  animation: configFieldFlash 0.6s ease-in-out 2;
+  border-radius: 0.5rem;
+}
+
+@keyframes configFieldFlash {
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 35%, transparent);
+  }
+}
+
+.captcha-modal-enter {
+  animation: captchaModalIn 0.3s ease-out forwards;
+}
+
+@keyframes captchaModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.captcha-backdrop-enter {
+  animation: backdropFadeIn 0.3s ease-out forwards;
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Liquid Glass Variables */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-card: rgba(255, 255, 255, 0.7);
+  --glass-overlay: rgba(0, 0, 0, 0.3);
+}
+
+.dark {
+  --glass-bg: rgba(30, 30, 30, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-card: rgba(40, 40, 40, 0.6);
+}
+
+/* Default background: plain light / dark colour; custom images via
+   has-custom-bg. */
+.bg-mesh-gradient {
+  background-color: var(--background);
+  position: relative;
+  z-index: 0;
+}
+
+.bg-mesh-gradient::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.dark .bg-mesh-gradient {
+  background-color: var(--background);
+}
+
+:root.has-theme-bg .bg-mesh-gradient {
+  background-image: none !important;
+  background-color: var(--background) !important;
+}
+
+:root.dark.has-theme-bg .bg-mesh-gradient {
+  background-color: var(--background) !important;
+}
+
+:root.has-theme-bg .bg-mesh-gradient::before {
+  background-image: none !important;
+}
+
+:root.has-custom-bg .bg-mesh-gradient {
+  background-image: none !important;
+  background-color: var(--custom-bg-color, transparent) !important;
+}
+
+:root.has-custom-bg .bg-mesh-gradient::before {
+  background-image: var(--custom-bg-image, none) !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    /* IE and Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+/* ------------------------------------------------------------------ phone
+   The phone layout (layouts/h5*.tsx, class h5-shell) in the style of iOS
+   settings: a grey page, white rounded groups, large titles. Pages mark
+   their parts with the classes below; desktop ignores them. These rules are
+   outside Tailwind's layers on purpose, so they win over a part's own
+   desktop utilities. */
+.h5-shell.bg-mesh-gradient {
+  background-color: var(--default-100);
+}
+
+.dark .h5-shell.bg-mesh-gradient {
+  background-color: var(--background);
+}
+
+.h5-shell .page-title {
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+}
+
+/* Rows of a list: siblings form one white rounded group; a group title, or
+   anything else between rows, starts a new group. */
+.h5-shell .list-row {
+  background-color: var(--content1);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-color: var(--divider);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dark .h5-shell .list-row {
+  background-color: var(--default-50);
+}
+
+.h5-shell .list-row:first-child,
+.h5-shell :not(.list-row) + .list-row {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.h5-shell .list-row:last-child,
+.h5-shell .list-row:has(+ :not(.list-row)) {
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  border-bottom-color: transparent;
+}
+
+/* Rows each wrapped in their own element (drag to reorder): the wrappers'
+   order decides the corners. */
+.h5-shell .list-row-wrap > .list-row {
+  border-radius: 0;
+  border-bottom-color: var(--divider);
+}
+
+.h5-shell .list-row-wrap:first-child > .list-row {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.h5-shell .list-row-wrap:last-child > .list-row {
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  border-bottom-color: transparent;
+}
+
+.h5-shell .list-row:is(button, [role="button"]):active,
+.h5-shell .list-row[data-selected="true"] {
+  background-color: var(--default-200);
+}
+
+.dark .h5-shell .list-row:is(button, [role="button"]):active,
+.dark .h5-shell .list-row[data-selected="true"] {
+  background-color: var(--default-100);
+}
+
+.h5-shell .list-group-title {
+  border-bottom-color: transparent;
+  padding-left: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+/* A block that is one white rounded card (stat grids, empty states). */
+.h5-shell .phone-card {
+  border-color: transparent;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.h5-shell .phone-card-fill {
+  background-color: var(--content1);
+}
+
+.dark .h5-shell .phone-card-fill {
+  background-color: var(--default-50);
+}
+
+.h5-shell [data-slot="card"] {
+  border-color: transparent;
+  border-radius: 1rem;
+  box-shadow: none;
+}
+
+.dark .h5-shell [data-slot="card"] {
+  background-color: var(--default-50);
+}
+
+/* Tabs become a segmented control. */
+.h5-shell .page-tabs {
+  width: max-content;
+  max-width: 100%;
+  gap: 0.125rem;
+  border-bottom-width: 0;
+  border-radius: 0.75rem;
+  background-color: var(--default-200);
+  padding: 0.1875rem;
+}
+
+.dark .h5-shell .page-tabs {
+  background-color: var(--default-100);
+}
+
+.h5-shell .page-tabs > [role="tab"] {
+  margin-bottom: 0;
+  border-bottom-width: 0;
+  border-radius: 0.5625rem;
+  padding: 0.3125rem 0.875rem;
+}
+
+/* The selected tab's white pill is one element that slides between tabs
+   (PageTabs measures the selected tab); until it is measured, the tab
+   itself carries the pill. */
+.h5-shell .page-tabs {
+  position: relative;
+}
+
+.h5-shell .page-tabs > [role="tab"] {
+  position: relative;
+  z-index: 1;
+}
+
+.h5-shell .page-tabs:not([data-indicator]) > [role="tab"][aria-selected="true"],
+.h5-shell .page-tabs-indicator {
+  background-color: var(--content1);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+}
+
+.dark .h5-shell .page-tabs:not([data-indicator]) > [role="tab"][aria-selected="true"],
+.dark .h5-shell .page-tabs-indicator {
+  background-color: var(--default-300);
+  box-shadow: none;
+}
+
+.page-tabs-indicator {
+  display: none;
+}
+
+.h5-shell .page-tabs-indicator {
+  display: block;
+  position: absolute;
+  top: 0.1875rem;
+  bottom: 0.1875rem;
+  left: 0;
+  border-radius: 0.5625rem;
+  pointer-events: none;
+}
+
+.h5-shell .page-tabs[data-indicator="moving"] .page-tabs-indicator {
+  transition:
+    transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+    width 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .h5-shell .page-tabs[data-indicator="moving"] .page-tabs-indicator {
+    transition: none;
+  }
+}
+
+.h5-shell .page-search {
+  height: 2.5rem;
+  border-color: transparent;
+  border-radius: 0.75rem;
+  background-color: var(--content1);
+}
+
+.dark .h5-shell .page-search {
+  background-color: var(--default-50);
+}
+
+.h5-shell .page-search input {
+  font-size: 1rem;
+}
+
+/* Sticky bars sit on the grey page, not on white. */
+.h5-shell .phone-sticky-bar {
+  background-color: var(--default-100);
+}
+
+.dark .h5-shell .phone-sticky-bar {
+  background-color: var(--background);
+}
+
+/* Country flags: Windows has no flag emoji, so the Twemoji Country Flags
+   font is loaded there (utils/flags.ts) and named first, before Tailwind's
+   default stack. It holds only the flags; all other text falls through to
+   the usual fonts, and elsewhere the font is never loaded. */
+html {
+  font-family:
+    "Twemoji Country Flags", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+}

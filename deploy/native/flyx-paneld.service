@@ -1,0 +1,32 @@
+[Unit]
+Description=FLYX panel (paneld)
+Documentation=https://github.com/kure29/flyx
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=flyx
+Group=flyx
+EnvironmentFile=/etc/flyx/paneld.env
+ExecStart=/usr/local/bin/flyx-paneld
+WorkingDirectory=/var/lib/flyx
+StateDirectory=flyx
+StateDirectoryMode=0750
+
+Restart=always
+RestartSec=3
+# 面板与节点端口都是长连接（WebSocket/流式诊断），别被默认 1024 卡住
+LimitNOFILE=1048576
+TimeoutStopSec=20
+
+# 面板只做 HTTP/WebSocket/数据库读写，不需要任何额外特权
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/flyx
+ReadOnlyPaths=/etc/flyx
+
+[Install]
+WantedBy=multi-user.target
