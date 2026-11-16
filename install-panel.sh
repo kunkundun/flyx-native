@@ -216,6 +216,19 @@ fetch_binary() {
 			fi
 		done
 
+		# 记录线路选择，便于事后排查
+		route_file="${CONF_DIR}/install-route.txt"
+		{
+			echo "# FLYX 面板安装时的下载线路探测结果"
+			echo "time=$(date -Is 2>/dev/null || date)"
+			echo "repo=${REPO}"
+			echo "chosen=${best:-direct} (direct=${direct_speed}KB/s, best=${best_speed}KB/s)"
+		} >"$route_file" 2>/dev/null || true
+		if command -v systemd-cat >/dev/null 2>&1; then
+			printf 'route: chosen=%s speed=%sKB/s (direct %sKB/s)\n' "${best:-direct}" "$best_speed" "$direct_speed" \
+				| systemd-cat -t flyx-install -p info 2>/dev/null || true
+		fi
+
 		if [ "$best_speed" -gt 0 ]; then
 			if [ -n "$best" ]; then
 				log "▶ 选用镜像：${best}（${best_speed} KB/s）"

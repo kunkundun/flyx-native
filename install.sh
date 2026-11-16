@@ -217,9 +217,36 @@ resolve_url_prefix() {
   if [[ ${#prefixes[@]} -eq 1 ]]; then
     RESOLVED_URL_PREFIX="${prefixes[0]}"
     RESOLVED_URL_PREFIX_DONE="1"
+    record_route "${prefixes[0]}" "skipped" "  （未探测：只有一个候选）"
     echo "$RESOLVED_URL_PREFIX"
     return
   fi
+
+  local route_file="${INSTALL_DIR:-/tmp}/install-route.txt"
+
+  # 把探测结果同时写入安装目录与 systemd journal，装完后仍可追溯
+  record_route() {
+    local chosen="$1" speed="$2" table="$3"
+    local line
+    line="route: chosen=${chosen:-direct} speed=${speed}KB/s"
+    mkdir -p "$(dirname "$route_file")" 2>/dev/null || true
+    {
+      echo "# FLYX agent 安装时的下载线路探测结果"
+      echo "time=$(date -Is 2>/dev/null || date)"
+      echo "repo=${REPO}"
+      echo "version=${RESOLVED_VERSION:-${VERSION:-latest}}"
+      echo "chosen=${chosen:-direct}"
+      echo "speed_kbps=${speed}"
+      echo "candidates:"
+      printf '%s\n' "$table"
+    } >"$route_file" 2>/dev/null || true
+    if command -v systemd-cat >/dev/null 2>&1; then
+      printf '%s\n%s\n' "$line" "$table" | systemd-cat -t flyx-install -p info 2>/dev/null || true
+    elif command -v logger >/dev/null 2>&1; then
+      logger -t flyx-install "$line" 2>/dev/null || true
+    fi
+    echo "📝 线路选择已记录：${route_file}（journalctl -t flyx-install 也可查）" >&2
+  }
 
   echo "🔍 正在探测最快的下载线路（直连 + ${#prefixes[@]} 个候选，最多 ${PROBE_TIMEOUT}s）..." >&2
   local tmpdir
@@ -236,12 +263,15 @@ resolve_url_prefix() {
   wait
 
   local best_prefix="" best_speed=0 idx=0
+  local probe_table=""
   for candidate in "${prefixes[@]}"; do
     local spd label
     spd=$(cat "$tmpdir/$idx" 2>/dev/null || echo 0)
     [[ -z "$spd" ]] && spd=0
     label="${candidate:-直连}"
     echo "   $label: ${spd} KB/s" >&2
+    probe_table="${probe_table}  ${label} = ${spd} KB/s
+"
     if [[ "$spd" -gt "$best_speed" ]]; then
       best_speed="$spd"
       best_prefix="$candidate"
@@ -254,9 +284,12 @@ resolve_url_prefix() {
     # 全部探测失败：按保守顺序回退（仍优先代理，因为多数失败场景在受限网络）
     best_prefix="${preference:-${prefixes[1]:-}}"
     echo "⚠️  所有线路探测均失败，回退：${best_prefix:-直连}" >&2
+    record_route "$best_prefix" "0(fallback)" "$probe_table"
   else
     echo "✅ 选用：${best_prefix:-直连}（${best_speed} KB/s）" >&2
   fi
+
+  record_route "$best_prefix" "$best_speed" "$probe_table"
 
   RESOLVED_URL_PREFIX="$best_prefix"
   RESOLVED_URL_PREFIX_DONE="1"

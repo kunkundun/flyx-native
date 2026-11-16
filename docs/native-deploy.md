@@ -78,6 +78,13 @@ PANEL_HIDE_ROOT=1
 全部失败时回退到配置的代理。国内机房直连通常只有 40KB/s，而外网机器直连可能比镜像更快，
 所以不再固定走代理。
 
+每次安装的线路选择会落盘，便于事后排查：
+
+```bash
+cat /etc/flyx-agent/install-route.txt      # 节点：chosen=direct|https://gh-proxy.com + 各候选速度
+journalctl -t flyx-install -n 20           # 同样内容也写入 journal（安装结束后仍保留）
+```
+
 ```bash
 PROXY_ENABLED=false bash install.sh -a <面板IP>:6365 -s <secret>     # 强制直连
 PROXY_CANDIDATES="https://gh-proxy.com" bash install.sh ...          # 只用一个候选

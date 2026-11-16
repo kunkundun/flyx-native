@@ -95,6 +95,14 @@ sudo FLVX_BINARY_URL=https://github.com/kunkundun/flyx-native/releases/download/
 
 面板「网站配置 → GitHub 加速」里的地址会作为候选之一一起参与测速，不再强制使用。
 
+每次安装都会把结果记录下来，事后可以追溯某台机器当时走了哪条线路：
+
+```bash
+cat /etc/flyx-agent/install-route.txt      # 节点机上：time / version / chosen / 各候选速度
+journalctl -t flyx-install -n 20           # 同样内容也写进 journal（装完仍可查）
+cat /etc/flyx/install-route.txt            # 面板机上（install-panel.sh）
+```
+
 ## 安装后三步
 
 1. 浏览器打开面板，**改掉初始密码**（`admin_user` / `admin_user`，首次登录强制改）
