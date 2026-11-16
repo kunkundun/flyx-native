@@ -317,6 +317,17 @@ except Exception:
 	echo "$value"
 }
 
+# env 文件里的值比命令行默认值更可信（升级场景）
+env_value() {
+	sed -n "s/^$1=//p" "$ENV_FILE" 2>/dev/null | tail -1
+}
+ENV_PANEL_PORT=$(env_value PANEL_PORT)
+ENV_AGENT_PORT=$(env_value AGENT_PORT)
+ENV_PANEL_PATH=$(env_value PANEL_PATH)
+[ -n "$ENV_PANEL_PORT" ] && PORT="$ENV_PANEL_PORT"
+[ -n "$ENV_AGENT_PORT" ] && AGENT_PORT="$ENV_AGENT_PORT"
+[ -n "$ENV_PANEL_PATH" ] && PANEL_PATH="$ENV_PANEL_PATH"
+
 if [ -f "$DATA_DIR/gost.db" ]; then
 	PORT=$(read_setting panel_port "$PORT")
 	AGENT_PORT=$(read_setting panel_agent_port "$AGENT_PORT")
