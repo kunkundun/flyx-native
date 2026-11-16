@@ -778,15 +778,6 @@ install_agent() {
 
   local tmp_binary="$INSTALL_DIR/$AGENT_NAME.new"
 
-  # 停止并禁用已有服务
-  if agent_service_exists; then
-    echo "🔍 检测到已存在的FLYX agent服务"
-    stop_agent_service
-    echo "🛑 停止服务"
-    disable_agent_service
-    echo "🚫 禁用自启"
-  fi
-
   # 下载 FLYX agent
   echo "⬇️ 下载 FLYX agent 中..."
   rm -f "$tmp_binary"
@@ -796,9 +787,20 @@ install_agent() {
     echo "❌ 下载失败，请检查网络或下载链接。"
     exit 1
   fi
+  echo "✅ 下载完成"
+
+  # 新二进制已就绪，此时才停服务替换：下载慢时节点不会提前离线
+  # 停止并禁用已有服务
+  if agent_service_exists; then
+    echo "🔍 检测到已存在的FLYX agent服务"
+    stop_agent_service
+    echo "🛑 停止服务"
+    disable_agent_service
+    echo "🚫 禁用自启"
+  fi
+
   mv "$tmp_binary" "$INSTALL_DIR/$AGENT_NAME"
   chmod +x "$INSTALL_DIR/$AGENT_NAME"
-  echo "✅ 下载完成"
 
   # 打印版本
   echo "🔎 FLYX agent 版本：$($INSTALL_DIR/$AGENT_NAME -V)"
