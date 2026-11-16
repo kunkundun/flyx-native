@@ -54,9 +54,12 @@ test_install_script_asks_for_proxy_config() (
 
   ask_proxy_config >/dev/null < <(printf '\nmirror.example.com/\n')
 
-  assert_equals "true" "$PROXY_ENABLED" "install.sh should enable proxy by default"
+  # 默认改为 auto：直连与镜像并行测速后择优
+  assert_equals "auto" "$PROXY_ENABLED" "install.sh should auto-select a download route by default"
   assert_equals "mirror.example.com/" "$PROXY_URL" "install.sh should keep the entered proxy URL"
 
+  # 固定走该镜像（proxy 模式不探测），下面断言 URL 归一化
+  PROXY_ENABLED="proxy"
   local actual
   actual=$(maybe_proxy_url "https://github.com/example/release")
 

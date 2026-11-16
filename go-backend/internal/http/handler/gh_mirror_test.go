@@ -93,6 +93,7 @@ func mirrorGet(t *testing.T, target string, header ...string) *httptest.Response
 }
 
 func TestGithubMirrorCachesReleaseFiles(t *testing.T) {
+	useUpstreamRepoForTest(t)
 	var down atomic.Bool
 	hits := fakeGitHubMirrorUpstream(t, &down)
 	const file = "https://github.com/kure29/flyx/releases/download/3.3.6/gost-amd64"
@@ -122,6 +123,7 @@ func TestGithubMirrorCachesReleaseFiles(t *testing.T) {
 }
 
 func TestGithubMirrorLatest(t *testing.T) {
+	useUpstreamRepoForTest(t)
 	var down atomic.Bool
 	fakeGitHubMirrorUpstream(t, &down)
 
@@ -146,6 +148,7 @@ func TestGithubMirrorLatest(t *testing.T) {
 }
 
 func TestGithubMirrorRefreshesAPIAndServesStale(t *testing.T) {
+	useUpstreamRepoForTest(t)
 	var down atomic.Bool
 	hits := fakeGitHubMirrorUpstream(t, &down)
 	const api = "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=30"
@@ -215,6 +218,7 @@ func TestGithubMirrorRedirectsStayOnGitHub(t *testing.T) {
 }
 
 func TestGithubMirrorFollowsMovedRepository(t *testing.T) {
+	useUpstreamRepoForTest(t)
 	var down atomic.Bool
 	fakeGitHubMirrorUpstream(t, &down)
 
@@ -230,4 +234,13 @@ func TestGithubMirrorFollowsMovedRepository(t *testing.T) {
 	if got := ghMirrorMovedRepo("https://evil.example/a/b/releases/latest", "/releases/latest"); got != "" {
 		t.Fatalf("redirect off GitHub followed: %q", got)
 	}
+}
+
+// useUpstreamRepoForTest pins githubRepo to the fixtures' repository name
+// (tests fake github.com paths for it) and restores it afterwards.
+func useUpstreamRepoForTest(t *testing.T) {
+	t.Helper()
+	old := githubRepo
+	githubRepo = "kure29/flyx"
+	t.Cleanup(func() { githubRepo = old })
 }

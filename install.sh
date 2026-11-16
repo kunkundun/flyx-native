@@ -169,7 +169,11 @@ probe_speed() {
 record_route() {
   local chosen="$1" speed="$2" table="$3"
   local line route_file
+  # 目录不可写（例如 CI 里没有 /etc 权限）时回退到 /tmp
   route_file="${INSTALL_DIR:-/tmp}/install-route.txt"
+  if ! mkdir -p "$(dirname "$route_file")" 2>/dev/null || [ ! -w "$(dirname "$route_file")" ]; then
+    route_file="/tmp/flyx-agent-install-route.txt"
+  fi
   line="route: chosen=${chosen:-direct} speed=${speed}KB/s"
   mkdir -p "$(dirname "$route_file")" 2>/dev/null || true
   {
@@ -205,7 +209,16 @@ resolve_url_prefix() {
   [[ -z "$mode" ]] && mode="auto"
   [[ "$mode" == "true" ]] && mode="auto"
 
-  local preference=""
+  local preference
+  preference=$(normalize_proxy_prefix "$PROXY_URL")
+  if [[ "$mode" == "proxy" ]]; then
+    RESOLVED_URL_PREFIX="$preference"
+    RESOLVED_URL_PREFIX_DONE="1"
+    record_route "${preference:-direct}" "skipped" "  （未探测：PROXY_ENABLED=proxy）"
+    echo "$RESOLVED_URL_PREFIX"
+    return
+  fi
+
   if [[ "$mode" == "false" || "$mode" == "direct" ]]; then
     RESOLVED_URL_PREFIX=""
     RESOLVED_URL_PREFIX_DONE="1"
@@ -221,7 +234,6 @@ resolve_url_prefix() {
   # 候选：直连 + 面板配置的代理 + 内置候选
   local -a prefixes=() speeds=()
   prefixes+=("")
-  preference=$(normalize_proxy_prefix "$PROXY_URL")
   [[ -n "$preference" ]] && prefixes+=("$preference")
   local candidate
   for candidate in $PROXY_CANDIDATES; do

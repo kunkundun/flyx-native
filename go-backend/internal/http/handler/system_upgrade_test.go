@@ -26,6 +26,7 @@ func TestSelectComposeAssetUsesIPv6Template(t *testing.T) {
 }
 
 func TestDownloadReleaseAssetUsesGithubProxyWhenEnabled(t *testing.T) {
+	useUpstreamRepoForTest(t)
 	dbPath := filepath.Join(t.TempDir(), "test.db")
 	repoStore, err := repo.Open(dbPath)
 	if err != nil {

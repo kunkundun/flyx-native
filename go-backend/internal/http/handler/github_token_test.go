@@ -78,6 +78,7 @@ func useGithubToken(t *testing.T, token string) {
 // With a token the panel's mirror serves a private repository's release
 // files, so nodes keep installing and upgrading without a token of their own.
 func TestGithubMirrorPrivateRepository(t *testing.T) {
+	useUpstreamRepoForTest(t)
 	fakePrivateGitHub(t, "tok")
 
 	if rec := mirrorGet(t, "https://github.com/kure29/flyx/releases/download/3.5.6/gost-amd64"); rec.Code == http.StatusOK {
