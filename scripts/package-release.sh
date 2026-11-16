@@ -48,13 +48,14 @@ for arch in amd64 arm64; do
 	(
 		cd "$ROOT/go-gost"
 		CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
-			go build -trimpath -ldflags="-s -w" \
+			go build -trimpath -ldflags="-s -w -X main.version=$VERSION" \
 			-o "$OUT/gost-$arch" .
 	)
 done
 
-echo "▶ 附带 install.sh（节点安装命令会从这里下载）"
+echo "▶ 附带安装脚本（节点安装命令 + 面板一键安装都会从这里下载）"
 cp -f "$ROOT/install.sh" "$OUT/install.sh"
+cp -f "$ROOT/install-panel.sh" "$OUT/install-panel.sh"
 
 echo "▶ 打包整套"
 tar czf "$OUT/flyx-native-$VERSION.tar.gz" \

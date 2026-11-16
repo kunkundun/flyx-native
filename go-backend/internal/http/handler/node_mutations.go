@@ -412,7 +412,9 @@ func (h *Handler) nodeInstall(w http.ResponseWriter, r *http.Request) {
 	var cmd string
 	address := processServerAddress(panelAddr)
 	if enabled {
-		cmd = fmt.Sprintf("curl -L %s/https://github.com/%s/releases/download/%s/install.sh -o ./install.sh && chmod +x ./install.sh && PROXY_ENABLED=true PROXY_URL=%s VERSION=%s ./install.sh -a %s -s %s",
+		// PROXY_ENABLED=auto：安装脚本会并行探测「直连 + 该代理」并选最快的线路，
+		// 外网机器上用代理反而慢时自动回退直连。
+		cmd = fmt.Sprintf("curl -L %s/https://github.com/%s/releases/download/%s/install.sh -o ./install.sh && chmod +x ./install.sh && PROXY_ENABLED=auto PROXY_URL=%s VERSION=%s ./install.sh -a %s -s %s",
 			proxyURL, githubRepo, version, proxyURL, version, address, secret)
 	} else {
 		cmd = fmt.Sprintf("curl -L https://github.com/%s/releases/download/%s/install.sh -o ./install.sh && chmod +x ./install.sh && PROXY_ENABLED=false VERSION=%s ./install.sh -a %s -s %s",
