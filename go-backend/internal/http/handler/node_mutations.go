@@ -386,13 +386,6 @@ func (h *Handler) nodeInstall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channel := normalizeReleaseChannel(req.Channel)
-	version, err := resolveLatestReleaseByChannel(channel)
-	if err != nil {
-		response.WriteJSON(w, response.Err(-2, fmt.Sprintf("获取最新%s失败: %v", releaseChannelLabel(channel), err)))
-		return
-	}
-
 	secret, err := h.repo.GetNodeSecret(req.ID)
 	if err != nil {
 		response.WriteJSON(w, response.ErrDefault("服务器不存在"))
@@ -401,16 +394,27 @@ func (h *Handler) nodeInstall(w http.ResponseWriter, r *http.Request) {
 	panelAddr, err := h.repo.GetViteConfigValue("ip")
 	if err != nil {
 		if err == sql.ErrNoRows {
-			response.WriteJSON(w, response.ErrDefault("请先前往网站配置中设置ip"))
+			response.WriteJSON(w, response.ErrDefault("请先在设置 → 基本中填写并保存面板后端地址（IP:端口或域名:端口），再生成安装命令"))
 			return
 		}
 		response.WriteJSON(w, response.Err(-2, err.Error()))
 		return
 	}
+	address := processServerAddress(panelAddr)
+	if address == "" {
+		response.WriteJSON(w, response.ErrDefault("请先在设置 → 基本中填写并保存面板后端地址（IP:端口或域名:端口），再生成安装命令"))
+		return
+	}
+
+	channel := normalizeReleaseChannel(req.Channel)
+	version, err := resolveLatestReleaseByChannel(channel)
+	if err != nil {
+		response.WriteJSON(w, response.Err(-2, fmt.Sprintf("获取最新%s失败: %v", releaseChannelLabel(channel), err)))
+		return
+	}
 	enabled, proxyURL := h.getGithubProxyConfig()
 
 	var cmd string
-	address := processServerAddress(panelAddr)
 	if enabled {
 		// PROXY_ENABLED=auto：安装脚本会并行探测「直连 + 该代理」并选最快的线路，
 		// 外网机器上用代理反而慢时自动回退直连。

@@ -767,6 +767,7 @@ export interface SubPipeline {
   prefix: string;
   dedupe: boolean;
   sort: "" | "name";
+  nodeOrder?: string[];
   regionGroups: boolean;
   /** Client-side chain: names matching chainLanding dial through the relay group. */
   chainLanding: string;
@@ -973,6 +974,7 @@ export interface SubscriptionDraft {
   resetDay: number;
 }
 export interface SubPreviewItem {
+  orderKey?: string;
   name: string;
   original: string;
   region: string;
@@ -1084,6 +1086,7 @@ export const saveRemoteSource = (data: {
   relayOnly: boolean;
   enabled?: boolean;
   userAgent?: string;
+  nodeOrder?: number[];
 }) =>
   Network.post<
     RemoteSourceItem | { source: RemoteSourceItem; result: RemoteSyncResult }
