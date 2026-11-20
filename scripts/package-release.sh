@@ -64,7 +64,7 @@ tar czf "$OUT/flyx-native-$VERSION.tar.gz" \
 echo "▶ 校验和"
 (
 	cd "$OUT"
-	sha256sum flyx-paneld-linux-* flyx-native-"$VERSION".tar.gz >SHA256SUMS
+	sha256sum flyx-paneld-linux-* gost-* install.sh install-panel.sh flyx-native-"$VERSION".tar.gz >SHA256SUMS
 	cat SHA256SUMS
 )
 
